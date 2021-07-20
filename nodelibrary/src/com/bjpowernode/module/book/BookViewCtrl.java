@@ -68,7 +68,7 @@ public class BookViewCtrl implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         List<Book> bookList = bookServiceImpl.getAllBook();
-//        System.out.println(bookList);
+        System.out.println("Õº È¡–±Ì£∫" + bookList);
         books.addAll(bookList);
 
         c1.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -133,9 +133,8 @@ public class BookViewCtrl implements Initializable {
         String isbn = isbnField.getText();
 
         List<Book> bookList = bookServiceImpl.queryBook(bookName, isbn);
-
-        books = new ObservableListWrapper<Book>(bookList);
-        bookTableView.setItems(books);
+        bookTableView.setItems(FXCollections.observableArrayList(books));
+        bookTableView.refresh();
     }
 
     /*

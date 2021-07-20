@@ -7,7 +7,7 @@ import java.util.List;
 public interface LendDao {
     List<Lend> selectLends();
 
-    List<Lend> query(String lendName, String isbn);
+//    List<Lend> query(String lendName, String isbn);
 
     void add(Lend lend);
 

@@ -40,4 +40,14 @@ public class BookServiceImpl implements BookService {
     public List<PieChart.Data> countBooks() {
         return bookDaoImpl.countBooks();
     }
+
+    @Override
+    public Book getBookNameById(String bookId) {
+        return bookDaoImpl.getBookNameById(bookId);
+    }
+
+    @Override
+    public Book getIsbnById(String bookId) {
+        return bookDaoImpl.getIsbnById(bookId);
+    }
 }

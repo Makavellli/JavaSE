@@ -14,4 +14,6 @@ public interface UserService {
     void remove(User user);
 
     void frozen(User user);
+
+    User getUserNameById(String userID);
 }

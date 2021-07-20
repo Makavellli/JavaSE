@@ -15,5 +15,7 @@ public interface UserDao {
 
     void frozen(User user);
 
-    User updateUserStatus(int userId);
+    User updateUserStatus(String userId);
+
+    User getUserById(String userID);
 }

@@ -1,5 +1,6 @@
 package com.bjpowernode.dao.impl;
 
+import com.bjpowernode.bean.Book;
 import com.bjpowernode.bean.Constant;
 import com.bjpowernode.bean.User;
 import com.bjpowernode.dao.UserDao;
@@ -8,6 +9,7 @@ import javafx.collections.ObservableList;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class UserDaoImpl implements UserDao {
@@ -48,14 +50,9 @@ public class UserDaoImpl implements UserDao {
              */
             ois = new ObjectInputStream(new FileInputStream(Constant.USER_DATA_FILE));
             List<User> userList_read = (List<User>) ois.readObject();
-            if (userList_read != null) {
-                //获取最后一个User的id，加1 赋值为新增的用户id
-                user.setId(userList_read.get(userList_read.size() - 1).getId() + 1);
-                userList_read.add(user);
-            } else {
-                user.setId(1);
-                userList_read.add(user);
-            }
+
+            user.setId(UUID.randomUUID().toString());
+            userList_read.add(user);
 
             //将新的User列表保存至用户文件内
             oos = new ObjectOutputStream(new FileOutputStream(Constant.USER_DATA_FILE));
@@ -88,7 +85,7 @@ public class UserDaoImpl implements UserDao {
     public void modify(User user) {
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
-        List<User> userList_read = new ArrayList<User>();
+        List<User> userList_read;
         try {
             /**
              * 读取文件内用户数据
@@ -97,7 +94,7 @@ public class UserDaoImpl implements UserDao {
             userList_read = (List<User>) ois.readObject();
             //获取id相同的用户，并更新
             for (int i = 0; i < userList_read.size(); i++) {
-                if (user.getId() == userList_read.get(i).getId()) {
+                if (user.getId().equals(userList_read.get(i).getId())) {
                     userList_read.set(i, user);
                     break;
                 }
@@ -221,10 +218,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User updateUserStatus(int userId) {
+    public User updateUserStatus(String userId) {
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
-        User newUser = new User();
+        User newUser;
         try {
             /**
              * 读取文件内用户数据
@@ -233,7 +230,7 @@ public class UserDaoImpl implements UserDao {
             List<User> userList_read = (List<User>) ois.readObject();
             List<User> queryList;
             //获取id相同的用户，并更新借阅状态
-            queryList = userList_read.stream().filter(u -> u.getId() == userId).collect(Collectors.toList());
+            queryList = userList_read.stream().filter(u -> u.getId().equals(userId)).collect(Collectors.toList());
             //System.out.println("符合条件的用户有：" + queryList);
             newUser = queryList.get(0);
             //从读取的用户中将符合条件的用户删除
@@ -245,7 +242,7 @@ public class UserDaoImpl implements UserDao {
                 userList_read.add(queryUser);
             });
 
-            System.out.println("更新后的待保存用户列表:" + userList_read);
+            //System.out.println("更新后的待保存用户列表:" + userList_read);
 
             //将新的User列表保存至用户文件内
             oos = new ObjectOutputStream(new FileOutputStream(Constant.USER_DATA_FILE));
@@ -273,5 +270,34 @@ public class UserDaoImpl implements UserDao {
             }
         }
         return new User();
+    }
+
+    @Override
+    public User getUserById(String userID) {
+
+        ObjectInputStream objectInputStream = null;
+        List<User> userList;
+        try {
+            objectInputStream = new ObjectInputStream(new FileInputStream(Constant.USER_DATA_FILE));
+            userList = (List<User>) objectInputStream.readObject();
+            if (objectInputStream != null) {
+
+                List<User> userListCheck = userList.stream().filter(s -> s.getId().equals(userID)).collect(Collectors.toList());
+                if (userListCheck != null) {
+                    return userListCheck.get(0);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (objectInputStream != null) {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

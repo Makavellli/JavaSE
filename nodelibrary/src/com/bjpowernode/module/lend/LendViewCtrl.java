@@ -1,7 +1,11 @@
 package com.bjpowernode.module.lend;
 
+import com.bjpowernode.service.BookService;
 import com.bjpowernode.service.LendService;
+import com.bjpowernode.service.UserService;
+import com.bjpowernode.service.impl.BookServiceImpl;
 import com.bjpowernode.service.impl.LendServiceImpl;
+import com.bjpowernode.service.impl.UserServiceImpl;
 import com.gn.App;
 import com.bjpowernode.bean.Book;
 import com.bjpowernode.bean.Constant;
@@ -67,6 +71,8 @@ public class LendViewCtrl implements Initializable {
     ObservableList<Lend> lends = FXCollections.observableArrayList();
 
     private LendService lendServiceImpl = new LendServiceImpl();
+    private UserService userServiceImpl = new UserServiceImpl();
+    private BookService bookServiceImpl = new BookServiceImpl();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -75,14 +81,18 @@ public class LendViewCtrl implements Initializable {
         c1.setCellValueFactory(new PropertyValueFactory<>("id"));
         //获取图书名称
         c2.setCellValueFactory((TableColumn.CellDataFeatures<Lend, String> p) ->
-                new SimpleObjectProperty(p.getValue().getBook().getBookName())
+                new SimpleObjectProperty(bookServiceImpl.getBookNameById(p.getValue().getBookId()).getBookName())
         );
         c3.setCellValueFactory((TableColumn.CellDataFeatures<Lend, String> p) ->
-                new SimpleObjectProperty(p.getValue().getBook().getIsbn())
+                new SimpleObjectProperty(bookServiceImpl.getIsbnById(p.getValue().getBookId()).getIsbn())
         );
+        PropertyValueFactory<Object, Object> userID = new PropertyValueFactory<>("userID");
+//        c4.setCellValueFactory(new PropertyValueFactory<>("userID"));
         c4.setCellValueFactory((TableColumn.CellDataFeatures<Lend, String> p) ->
-                new SimpleObjectProperty(p.getValue().getUser().getName())
-        );
+                new SimpleObjectProperty(userServiceImpl.getUserNameById(p.getValue().getUserID()).getName()));
+
+//        (TableColumn.CellDataFeatures<Lend, String> p) ->
+//                new SimpleObjectProperty(userServiceImpl.getUserNameById(p.getValue().getUserID()).getName())
         c5.setCellValueFactory(new PropertyValueFactory<>("lendDate"));
         c6.setCellValueFactory(new PropertyValueFactory<>("returnDate"));
         c7.setCellValueFactory(new PropertyValueFactory<>("status"));
@@ -103,14 +113,18 @@ public class LendViewCtrl implements Initializable {
         List<Lend> lendList;
         if (lendFlag && isbnFlag) {
             System.out.println("查询所有借阅记录...");
-            lendTableView.setItems(lends);
+            System.out.println(lendTableView.getItems());
+            lendTableView.getItems().clear();
+            List<Lend> lendListQureyAll = lendServiceImpl.selectLends();
+            lendTableView.setItems(FXCollections.observableArrayList(lendListQureyAll));
             lendTableView.refresh();
         } else {
             System.out.println("开始查询借阅记录...");
             lendList = lendServiceImpl.query(lendName, isbn);
+            lendTableView.getItems().clear();
             lendTableView.setItems(FXCollections.observableArrayList(lendList));
+            lendTableView.refresh();
         }
-        lendTableView.refresh();
     }
 
     /*
@@ -141,13 +155,18 @@ public class LendViewCtrl implements Initializable {
 
 //        lendServiceImpl
         //当前余额
-        BigDecimal balance = lend.getUser().getMoney();
+        BigDecimal balance = userServiceImpl.getUserNameById(lend.getUserID()).getMoney();
         //逾期金额
         BigDecimal outMoney = new BigDecimal(0);
         //判断时间
         LocalDate returnDate = lend.getReturnDate();
         LocalDate now = LocalDate.now();
         Period between = Period.between(returnDate, now);
+
+        //待更新用户
+        User readyToUpdateUser = new User();
+        //待更新图书
+        Book readyToUpdateBook = new Book();
         //相差天数
         int days = between.getDays();
         System.out.println("相差天数：" + days);
@@ -164,21 +183,25 @@ public class LendViewCtrl implements Initializable {
                 Alerts.warning("充值", "由于还书时间逾期,需缴纳预期费用共计：" + outMoney + "元，当前余额是：" + balance + ",请充值后还书！");
                 return;
             }
-            lend.getUser().setMoney(balance.subtract(outMoney));
-            lend.getUser().setLend(Constant.USER_LEND_NO);
-            lend.getBook().setStatus(Constant.STATUS_STORAGE);
+            readyToUpdateUser = userServiceImpl.getUserNameById(lend.getUserID());
+            readyToUpdateUser.setMoney(balance.subtract(outMoney));
+            readyToUpdateUser.setLend(Constant.USER_LEND_NO);
+            readyToUpdateBook = bookServiceImpl.getBookNameById(lend.getBookId());
+            readyToUpdateBook.setStatus(Constant.STATUS_STORAGE);
             lend.setReturnDate(LocalDate.now());
             lend.setStatus(Constant.LEND_RETURN);
-            lendServiceImpl.returnBook(lend);
+            lendServiceImpl.returnBook(lend, readyToUpdateUser, readyToUpdateBook);
             Alerts.success("成功", "恭喜你,还书成功，当前余额是：" + balance.subtract(outMoney));
         }
 
-        lend.getUser().setMoney(balance.subtract(outMoney));
-        lend.getUser().setLend(Constant.USER_LEND_NO);
-        lend.getBook().setStatus(Constant.STATUS_STORAGE);
+        readyToUpdateUser = userServiceImpl.getUserNameById(lend.getUserID());
+        readyToUpdateUser.setMoney(balance.subtract(outMoney));
+        readyToUpdateUser.setLend(Constant.USER_LEND_NO);
+        readyToUpdateBook = bookServiceImpl.getBookNameById(lend.getBookId());
+        readyToUpdateBook.setStatus(Constant.STATUS_STORAGE);
         lend.setReturnDate(LocalDate.now());
         lend.setStatus(Constant.LEND_RETURN);
-        lendServiceImpl.returnBook(lend);
+        lendServiceImpl.returnBook(lend, readyToUpdateUser, readyToUpdateBook);
         Alerts.success("成功", "恭喜你,还书成功，当前余额是：" + balance.subtract(outMoney));
         lendTableView.refresh();
     }

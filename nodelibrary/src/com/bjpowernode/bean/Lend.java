@@ -11,13 +11,24 @@ public class Lend implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String uuid;
+    private String id;
+
+    public Lend() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     //借出的书籍
-    private Book book;
+    private String bookId;
 
     //借阅者
-    private User user;
+    private String userID;
 
     //状态
     private String status;
@@ -28,47 +39,40 @@ public class Lend implements Serializable {
     //归还日期
     private LocalDate returnDate;
 
+    //记录是否归档
+    private Boolean isArchive;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Lend lend = (Lend) o;
-        return uuid == lend.uuid &&
-                Objects.equals(book, lend.book) &&
-                Objects.equals(user, lend.user) &&
-                Objects.equals(status, lend.status) &&
-                Objects.equals(lendDate, lend.lendDate) &&
-                Objects.equals(returnDate, lend.returnDate);
+    public Boolean getArchive() {
+        return isArchive;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid, book, user, status, lendDate, returnDate);
+    public void setArchive(Boolean archive) {
+        isArchive = archive;
     }
 
-    public String getId() {
-        return uuid;
+    public Lend(String bookId, String userID, String status, LocalDate lendDate, LocalDate returnDate, Boolean isArchive) {
+        this.bookId = bookId;
+        this.userID = userID;
+        this.status = status;
+        this.lendDate = lendDate;
+        this.returnDate = returnDate;
+        this.isArchive = isArchive;
     }
 
-    public void setId(String uuid) {
-        this.uuid = uuid;
+    public String getBookId() {
+        return bookId;
     }
 
-    public Book getBook() {
-        return book;
+    public void setBookId(String bookId) {
+        this.bookId = bookId;
     }
 
-    public void setBook(Book book) {
-        this.book = book;
+    public String getUserID() {
+        return userID;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     public String getStatus() {
@@ -95,27 +99,28 @@ public class Lend implements Serializable {
         this.returnDate = returnDate;
     }
 
-    public Lend() {
-    }
-
-    public Lend(String uuid, Book book, User user, String status, LocalDate lendDate, LocalDate returnDate) {
-        this.uuid = uuid;
-        this.book = book;
-        this.user = user;
-        this.status = status;
-        this.lendDate = lendDate;
-        this.returnDate = returnDate;
-    }
-
     @Override
     public String toString() {
         return "Lend{" +
-                "uuid='" + uuid + '\'' +
-                ", book=" + book +
-                ", user=" + user +
+                "bookId='" + bookId + '\'' +
+                ", userID='" + userID + '\'' +
                 ", status='" + status + '\'' +
                 ", lendDate=" + lendDate +
                 ", returnDate=" + returnDate +
+                ", isArchive=" + isArchive +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lend lend = (Lend) o;
+        return Objects.equals(bookId, lend.bookId) && Objects.equals(userID, lend.userID) && Objects.equals(status, lend.status) && Objects.equals(lendDate, lend.lendDate) && Objects.equals(returnDate, lend.returnDate) && Objects.equals(isArchive, lend.isArchive);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bookId, userID, status, lendDate, returnDate, isArchive);
     }
 }

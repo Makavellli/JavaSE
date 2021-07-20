@@ -10,7 +10,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //ID
-    private int id;
+    private String id;
 
     //名称
     private String name;
@@ -27,7 +27,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(int id, String name, String status, BigDecimal money, String isLend) {
+    public User(String id, String name, String status, BigDecimal money, String isLend) {
         this.id = id;
         this.name = name;
         this.status = status;
@@ -35,11 +35,11 @@ public class User implements Serializable {
         this.isLend = isLend;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

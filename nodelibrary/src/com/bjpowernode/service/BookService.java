@@ -17,4 +17,8 @@ public interface BookService {
     void remove(Book book);
 
     List<PieChart.Data> countBooks();
+
+    Book getBookNameById(String bookId);
+
+    Book getIsbnById(String bookId);
 }

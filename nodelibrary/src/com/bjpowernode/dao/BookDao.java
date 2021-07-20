@@ -18,5 +18,9 @@ public interface BookDao {
 
     List<PieChart.Data> countBooks();
 
-    Book updateBookStatus(int bookId);
+    Book updateBookStatus(String bookId);
+
+    Book getBookNameById(String bookId);
+
+    Book getIsbnById(String bookId);
 }

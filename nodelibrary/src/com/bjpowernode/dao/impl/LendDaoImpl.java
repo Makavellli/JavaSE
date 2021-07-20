@@ -35,39 +35,6 @@ public class LendDaoImpl implements LendDao {
     }
 
     @Override
-    public List<Lend> query(String bookName, String isbn) {
-        ObjectInputStream ois = null;
-        List<Lend> lendList;
-        List<Lend> queryList = new ArrayList<>();
-
-        try {
-            ois = new ObjectInputStream(new FileInputStream(Constant.LEND_DATA_FILE));
-            lendList = (List<Lend>) ois.readObject();
-            if (!"".equals(bookName)) {
-                queryList = lendList.stream().filter(l -> l.getBook().getBookName().contains(bookName)).collect(Collectors.toList());
-            }
-
-            if (!"".equals(isbn)) {
-                queryList = queryList.stream().filter(l -> l.getBook().getIsbn().contains(isbn)).collect(Collectors.toList());
-            }
-
-            return queryList;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return new ArrayList<>();
-    }
-
-    @Override
     public void add(Lend lend) {
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;

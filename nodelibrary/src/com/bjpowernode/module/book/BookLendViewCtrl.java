@@ -25,6 +25,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.List;
 
 public class BookLendViewCtrl {
 
@@ -60,6 +61,7 @@ public class BookLendViewCtrl {
     }
 
     private LendService lendServiceImpl = new LendServiceImpl();
+    private BookService bookServiceImpl = new BookServiceImpl();
 
     @FXML
     private void closeView() {
@@ -81,17 +83,18 @@ public class BookLendViewCtrl {
             Alerts.warning("未选择", "请选择需要借阅的图书！");
             return;
         }
-        System.out.println("页面传递的图书ID是：" + Integer.parseInt(bookIdField.getText()));
-        System.out.println("页面传递的用户ID是：" + Integer.parseInt(userIdField.getText()));
+        System.out.println("页面传递的图书ID是：" + bookIdField.getText());
+        System.out.println("页面传递的用户ID是：" + userIdField.getText());
 
-        lendServiceImpl.add(Integer.parseInt(bookIdField.getText()), Integer.parseInt(userIdField.getText()));
+        lendServiceImpl.add(bookIdField.getText(), userIdField.getText());
 
-        ObservableList<Book> books = bookTableView.getItems();
-        System.out.println(books);
+        bookTableView.getItems().clear();
         System.out.println("刷新bookTableView---------");
-        bookTableView.refresh();
+        List<Book> bookList = bookServiceImpl.getAllBook();
+        System.out.println(bookList);
+        bookTableView.setItems(FXCollections.observableArrayList(bookList));
         stage.close();
-
+        bookTableView.refresh();
     }
 
     /*

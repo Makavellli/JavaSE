@@ -13,8 +13,10 @@ import com.bjpowernode.dao.impl.UserDaoImpl;
 import com.bjpowernode.service.LendService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class LendServiceImpl implements LendService {
 
@@ -28,12 +30,18 @@ public class LendServiceImpl implements LendService {
     }
 
     @Override
-    public List<Lend> query(String lendName, String isbn) {
-        return lendDaoImpl.query(lendName, isbn);
+    public List<Lend> query(String bookName, String isbn) {
+        List<Book> bookList = bookDaoImpl.queryBook(bookName, isbn);
+        List<Lend> lendList = lendDaoImpl.selectLends();
+        List<Lend> resultList = new ArrayList<>();
+        bookList.forEach(b -> {
+            resultList.addAll(lendList.stream().filter(l -> l.getBookId() == b.getId()).collect(Collectors.toList()));
+        });
+        return resultList;
     }
 
     @Override
-    public void add(int bookid, int userId) {
+    public void add(String bookid, String userId) {
         Lend lend = new Lend();
         LocalDate now = LocalDate.now();
         lend.setId(UUID.randomUUID().toString());
@@ -46,17 +54,20 @@ public class LendServiceImpl implements LendService {
         //更新用户借阅状态
         User newUser = userDaoImpl.updateUserStatus(userId);
         //保存借阅记录
-        lend.setBook(newBook);
-        lend.setUser(newUser);
+        lend.setBookId(bookid);
+        lend.setUserID(userId);
         lendDaoImpl.add(lend);
     }
 
     @Override
-    public void returnBook(Lend lend) {
-        //更新图书借阅状态
-        bookDaoImpl.modify(lend.getBook());
+    public void returnBook(Lend lend, User user, Book book) {
+
         //更新用户借阅状态
-        userDaoImpl.modify(lend.getUser());
+        userDaoImpl.modify(user);
+
+        //更新图书借阅状态
+        bookDaoImpl.modify(book);
+
         //新增一条借阅记录
         lend.setId(UUID.randomUUID().toString());
         lendDaoImpl.add(lend);
@@ -64,6 +75,6 @@ public class LendServiceImpl implements LendService {
 
     @Override
     public void modify(Lend lend) {
-        
+
     }
 }

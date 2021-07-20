@@ -6,10 +6,7 @@ import com.bjpowernode.dao.BookDao;
 import javafx.scene.chart.PieChart;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BookDaoImpl implements BookDao {
@@ -97,14 +94,9 @@ public class BookDaoImpl implements BookDao {
              */
             ois = new ObjectInputStream(new FileInputStream(Constant.BOOK_DATA_FILE));
             List<Book> bookList_read = (List<Book>) ois.readObject();
-            if (bookList_read != null) {
-                //获取最后一本图书的id，加1 赋值为新增图书的id
-                book.setId(bookList_read.get(bookList_read.size() - 1).getId() + new Random().nextInt(1000));
-                bookList_read.add(book);
-            } else {
-                book.setId(1);
-                bookList_read.add(book);
-            }
+
+            book.setId(UUID.randomUUID().toString());
+            bookList_read.add(book);
 
             //将新的Book列表保存至图书文件内
             oos = new ObjectOutputStream(new FileOutputStream(Constant.BOOK_DATA_FILE));
@@ -144,7 +136,7 @@ public class BookDaoImpl implements BookDao {
             bookList_read = (List<Book>) ois.readObject();
             //获取id相同的用户，并更新
             for (int i = 0; i < bookList_read.size(); i++) {
-                if (book.getId() == bookList_read.get(i).getId()) {
+                if (book.getId().equals(bookList_read.get(i).getId())) {
                     bookList_read.set(i, book);
                     break;
                 }
@@ -271,7 +263,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
-    public Book updateBookStatus(int bookId) {
+    public Book updateBookStatus(String bookId) {
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
         List<Book> bookList_read;
@@ -285,7 +277,9 @@ public class BookDaoImpl implements BookDao {
             List<Book> bookList_qurey;
 
             //获取id相同的用户，并更新
-            bookList_qurey = bookList_read.stream().filter(b -> b.getId() == bookId).collect(Collectors.toList());
+            bookList_qurey = bookList_read.stream().filter(b -> b.getId().equals(bookId)).collect(Collectors.toList());
+            System.out.println("查询到的图书列表数量：" + bookList_qurey.size());
+            System.out.println("图书列表：" + bookList_qurey);
             newBook = bookList_qurey.get(0);
 
             //将符合条件的图书删除
@@ -321,5 +315,61 @@ public class BookDaoImpl implements BookDao {
             }
         }
         return new Book();
+    }
+
+    @Override
+    public Book getBookNameById(String bookId) {
+        ObjectInputStream objectInputStream = null;
+        List<Book> bookList;
+        try {
+            objectInputStream = new ObjectInputStream(new FileInputStream(Constant.BOOK_DATA_FILE));
+            bookList = (List<Book>) objectInputStream.readObject();
+            if (objectInputStream != null) {
+
+                List<Book> bookListCheck = bookList.stream().filter(s -> s.getId().equals(bookId)).collect(Collectors.toList());
+                if (bookListCheck != null) {
+                    return bookListCheck.get(0);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (objectInputStream != null) {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Book getIsbnById(String bookId) {
+        ObjectInputStream objectInputStream = null;
+        List<Book> bookList;
+        try {
+            objectInputStream = new ObjectInputStream(new FileInputStream(Constant.BOOK_DATA_FILE));
+            bookList = (List<Book>) objectInputStream.readObject();
+            if (objectInputStream != null) {
+
+                List<Book> bookListCheck = bookList.stream().filter(s -> s.getId().equals(bookId)).collect(Collectors.toList());
+                if (bookListCheck != null) {
+                    return bookListCheck.get(0);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (objectInputStream != null) {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

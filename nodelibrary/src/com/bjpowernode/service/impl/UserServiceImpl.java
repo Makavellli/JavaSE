@@ -34,6 +34,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void frozen(User user) {
-        userDaoImpl.frozen (user);
+        userDaoImpl.frozen(user);
+    }
+
+    @Override
+    public User getUserNameById(String userID) {
+        return userDaoImpl.getUserById(userID);
     }
 }
