@@ -61,6 +61,7 @@ public class countTest {
                 List<User> userList = new ArrayList<>();
                 userList.add(user);
                 map.put(key, userList);
+                System.out.println(userList);
             }
         }
         //分组结束，map中的数据就是分组后的数据
