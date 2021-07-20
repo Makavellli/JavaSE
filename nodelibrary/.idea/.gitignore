@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/../../../../../../../../../../:\Users\Administrator\Desktop\学习\JavaSE图书管理系统\源码\1-nodelibrary（最开始的代码-需要导入到IDEA中）\nodelibrary\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
